@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body>
+
+    <div id="myPlot" style="width:100%;max-width:700px"></div>
+    <p id="text"></p>
+
+    <script>
+        const text = window.document.getElementById('text')
+        Plotly.d3.csv('Salary_Data.csv', function (err, data) {
+            if (err) return console.warn(err);
+
+            let xArray = data.map(row => parseFloat(row['YearsExperience']));
+            let yArray = data.map(row => parseFloat(row['Salary']));
+
+            // Jamlar hisoblash
+            let xSum = 0, ySum = 0, xxSum = 0, xySum = 0;
+            let count = xArray.length;
+            for (let i = 0; i < count; i++) {
+                xSum += xArray[i];
+                ySum += yArray[i];
+                xxSum += xArray[i] * xArray[i];
+                xySum += xArray[i] * yArray[i];
+            }
+
+            // To'g'ri koeffitsientni va interseptni hisoblash
+            let slope = (count * xySum - xSum * ySum) / (count * xxSum - xSum * xSum);
+            let intercept = (ySum / count) - (slope * xSum) / count;
+
+            // Qiyaslanadigan x qiymatlari
+            const xValues = [];
+            const yValues = [];
+            for (let x = Math.min(...xArray); x <= Math.max(...xArray); x += 0.1) {
+                xValues.push(x);
+                yValues.push(x * slope + intercept);
+            }
+
+            const salaryData = [
+                { x: xArray, y: yArray, mode: "markers", name: "Ma'lumotlar" },
+                { x: xValues, y: yValues, mode: "line", name: "Regressiya" }
+            ];
+
+            const layout = {
+                xaxis: { title: "Years of Experience" },
+                yaxis: { title: "Salary" },
+                title: "Salary vs. Years of Experience"
+            };
+            Plotly.newPlot("myPlot", salaryData, layout);
+            let lastYearExperience = xArray[xArray.length - 1];
+
+            let predictedSalary = lastYearExperience * slope + intercept;
+
+            text.append(`Boshorat qilingan qiymat: ${predictedSalary}`)
+            console.log("Boshorat qilingan qiymat:", predictedSalary);
+        });
+    </script>
+
+</body>
+
+</html>
+
+
+int a = 2;
+int b = 3;
+int c = 4;
+int d = 5;
+int e = 6;
+int f = 7;
+int g = 8;
+
+int b1 = 0;
+int b2 = 1;
+
+int digit1 = 13;
+int digit2 = 12;
+int digit3 = 11;
+int digit4 = 10;
+
+int num = 0;
+
+char Number[10] ={
+0b1111110, //0
+0b0110000, // 1
+0b1101101, // 2
+0b1111001, // 3
+0b0110011, // 4
+0b1011011, //5
+0b1011111, // 6
+0b1110000, // 7
+0b1111111, // 8
+0b1111011, // 9
+};
+
+boolean isTup(int n)
+{
+  int c = 2;
+  for(int i = 2; i <= n / 2; i++) // <= bo'lishi kerak
+  {
+    if(n % i == 0)
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+
+void display(int n)
+{
+  digitalWrite(a, Number[n] & 0b1000000);
+  digitalWrite(b, Number [n] & 0b0100000);
+  digitalWrite(c, Number[n] & 0b0010000);
+  digitalWrite(d, Number[n] & 0b0001000);
+  digitalWrite(e, Number [n] & 0b0000100);
+  digitalWrite(f, Number[n] & 0b0000010);
+  digitalWrite(g, Number[n] & 0b0000001);
+}
+void offDisplay()
+{
+  digitalWrite(digit1, 1);
+  digitalWrite(digit2, 1);
+  digitalWrite(digit3, 1);
+  digitalWrite(digit4, 1);
+}
+void displayPin(int pin, int n)
+{
+  offDisplay();
+  display(n);
+  digitalWrite(pin, 0);
+  delay(10);
+}
+
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(a, OUTPUT);
+  pinMode(b, OUTPUT);
+  pinMode(c, OUTPUT);
+  pinMode(d, OUTPUT);
+  pinMode(e, OUTPUT);
+  pinMode(f, OUTPUT);
+  pinMode(g, OUTPUT);
+  
+  pinMode(digit1, OUTPUT);
+  pinMode(digit2, OUTPUT);
+  pinMode(digit3, OUTPUT);
+  pinMode(digit4, OUTPUT);
+  
+  pinMode(b1, INPUT);
+  pinMode(b2, INPUT);
+  
+}
+
+
+void loop()
+{
+  displayPin(digit1, num / 1000);
+  displayPin(digit2, num / 100 % 10);
+  displayPin(digit3, num / 10 % 10);
+  displayPin(digit4, num % 10);
+  Serial.println(num);
+  int isPresB1 = digitalRead(b1);
+  int isPresB2 = digitalRead(b2);
+  Serial.print(isPresB1);
+  if(!isPresB1) 
+  {
+    Serial.print(num);
+    do {
+       num = random(0, 9999);
+    } while(!isTup(num));
+  }
+  if(!isPresB2) 
+  {
+    do {
+       num = random(0, 9999);
+    } while(isTup(num));
+  }	
+}
