@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistik Regressiya Grafik</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+
+<body>
+    <h1>Logistik Regressiya Grafik</h1>
+    <svg width="800" height="400" id="plot"></svg>
+
+    <h1>Logistik Regressiya Natijasi</h1>
+    <div id="results"></div>
+
+
+    <script>
+        // Sigmoid funksiyani hisoblash
+        function sigmoid(z) {
+            return 1 / (1 + Math.exp(-z));
+        }
+
+        // Logistik regressiya modelini hisoblash
+        function logisticRegression(data, theta) {
+            let sum = 0;
+            for (let i = 0; i < data.length; i++) {
+                const x = data[i][0]; // Ma'lumotning faktor qiymati
+                const y = data[i][1]; // Ma'lumotning natijasi (0 yoki 1)
+
+                // Logistik regressiya formulasi: h(x) = sigmoid(theta0 + theta1*x)
+                const h = sigmoid(theta[0] + theta[1] * x);
+
+                // Xatolikni hisoblash uchun logistik funksiyani hisoblash
+                sum += y * Math.log(h) + (1 - y) * Math.log(1 - h);
+            }
+            return -sum / data.length; // Yig'indini o'rta arifmetigi
+        }
+
+        // Optimizatsiya usulini ishga tushirish
+        function optimize(data, theta, alpha, iterations) {
+            const m = data.length; // Ma'lumotlar soni
+            for (let iter = 0; iter < iterations; iter++) {
+                let sum0 = 0;
+                let sum1 = 0;
+                for (let i = 0; i < m; i++) {
+                    const x = data[i][0];
+                    const y = data[i][1];
+                    const h = sigmoid(theta[0] + theta[1] * x);
+                    sum0 += (h - y);
+                    sum1 += (h - y) * x;
+                }
+                // Yenilash qoidalari
+                const delta0 = sum0 / m;
+                const delta1 = sum1 / m;
+                theta[0] -= alpha * delta0;
+                theta[1] -= alpha * delta1;
+            }
+            return theta;
+        }
+
+        // Ma'lumotlar
+        const data = [
+            [48, 0],
+            [54, 0],
+            [11, 0],
+            [50, 1],
+            [14, 1],
+            [26, 1],    
+            [35, 1],
+            [41, 1],
+            [49, 1],
+            [26, 0],
+            [34, 1],
+            [42, 0],
+            [36, 0],
+            [23, 1],
+        ];
+
+        let theta = [0, 0];
+
+        const alpha = 0.01;
+        const iterations = 1000;
+
+        theta = optimize(data, theta, alpha, iterations);
+
+        const x_new = Array.from({ length: 100 }, (_, i) => i + 1);
+        const y_new = x_new.map(x => sigmoid(theta[0] + theta[1] * x));
+
+        const svg = d3.select("#plot");
+
+        const margin = { top: 20, right: 20, bottom: 30, left: 50 };
+        const width = +svg.attr("width") - margin.left - margin.right;
+        const height = +svg.attr("height") - margin.top - margin.bottom;
+
+
+        const g = svg.append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        const x = d3.scaleLinear()
+            .domain([0, d3.max(x_new)])
+            .range([0, width]);
+
+        const y = d3.scaleLinear()
+            .domain([0, 1])
+            .range([height, 0]);
+
+        g.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+
+        g.append("g")
+            .call(d3.axisLeft(y));
+
+        g.append("path")
+            .datum(x_new.map((x, i) => [x, y_new[i]]))
+            .attr("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-width", 1.5)
+            .attr("d", d3.line()
+                .curve(d3.curveBasis)
+                .x(d => x(d[0]))
+                .y(d => y(d[1]))
+            );
+
+        const x_base = 11;
+        const h_new = sigmoid(theta[0] + theta[1] * x_base);
+
+
+        const resultDiv = document.getElementById('results');
+        resultDiv.innerHTML = `
+            <p>Optimallashtirilgan theta: [${theta.join(', ')}]</p>
+            <p>Yangi qiymat: ${h_new}</p>
+        `;
+    </script>
+</body>
+
+</html>

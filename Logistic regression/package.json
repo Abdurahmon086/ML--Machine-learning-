@@ -1,0 +1,16 @@
+{
+  "name": "logistic-regression",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "js-datasets-iris": "^1.0.4",
+    "js-regression": "^1.0.10"
+  }
+}
